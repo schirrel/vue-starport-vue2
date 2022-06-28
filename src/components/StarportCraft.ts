@@ -1,7 +1,8 @@
-import type { DefineComponent, StyleValue } from 'vue'
-import { Teleport, computed, defineComponent, h, inject, mergeProps } from 'vue'
+import { computed, defineComponent, inject } from 'vue'
+import { Portal, PortalTarget } from 'portal-vue'
+import { h } from 'vue/src/v3'
 import { InjectionState } from '../constants'
-import type { StarportCraftProps } from '../types'
+import { mergeProps } from '../utils/vue3'
 
 /**
  * @internal
@@ -26,12 +27,13 @@ export const StarportCraft = defineComponent({
     const sp = computed(() => state.getInstance(props.port, props.component))
     const id = computed(() => sp.value.el?.id || sp.value.id)
 
-    const style = computed((): StyleValue => {
+    const style = computed(() => {
       const elapsed = Date.now() - sp.value.liftOffTime
       const duration = Math.max(0, sp.value.options.duration - elapsed)
       const rect = sp.value.rect
 
-      const style: StyleValue = {
+      const style = {
+        display: 'inherit',
         position: 'absolute',
         left: 0,
         top: 0,
@@ -62,17 +64,17 @@ export const StarportCraft = defineComponent({
     const additionalProps = process.env.NODE_ENV === 'production'
       ? {}
       : {
-        onTransitionend(e: TransitionEvent) {
-          if (sp.value.isLanded)
-            return
-          console.warn(`[Vue Starport] Transition duration of component "${sp.value.componentName}" is too short (${e.elapsedTime}s) that may cause animation glitches. Try to increase the duration of that component, or decrease the duration the Starport (current: ${sp.value.options.duration / 1000}s).`)
-        },
-      }
+          onTransitionend(e: TransitionEvent) {
+            if (sp.value.isLanded)
+              return
+            console.warn(`[Vue Starport] Transition duration of component "${sp.value.componentName}" is too short (${e.elapsedTime}s) that may cause animation glitches. Try to increase the duration of that component, or decrease the duration the Starport (current: ${sp.value.options.duration / 1000}s).`)
+          },
+        }
 
     return () => {
       const teleport = !!(sp.value.isLanded && sp.value.el)
       return h(
-        'div',
+        PortalTarget,
         {
           'style': style.value,
           'data-starport-craft': sp.value.componentId,
@@ -81,16 +83,17 @@ export const StarportCraft = defineComponent({
           'onTransitionend': sp.value.land,
         },
         h(
-          Teleport,
+          Portal,
           {
             to: teleport ? `#${id.value}` : 'body',
             disabled: !teleport,
+
           },
           h(sp.value.component as any,
-            mergeProps(additionalProps, sp.value.props),
+            { props: mergeProps(additionalProps, sp.value.props) },
           ),
         ),
       )
     }
   },
-}) as DefineComponent<StarportCraftProps>
+})

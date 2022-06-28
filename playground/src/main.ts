@@ -1,19 +1,25 @@
-import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
 import routes from 'virtual:generated-pages'
 import Starport from 'vue-starport'
-import App from './App.vue'
 
 import '@unocss/reset/tailwind.css'
 import './styles/main.css'
 import 'uno.css'
 import './index.css'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import App from './App.vue'
 
-const app = createApp(App)
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+Vue.use(VueRouter)
+
+const router = new VueRouter({
   routes,
 })
-app.use(router)
-app.use(Starport({ keepAlive: true }))
-app.mount('#app')
+
+const app = new Vue({
+  router,
+  render: h => h(App),
+})
+
+// app.use(router)
+Vue.use(Starport({ keepAlive: true }))
+app.$mount('#app')

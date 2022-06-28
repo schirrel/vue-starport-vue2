@@ -1,9 +1,10 @@
 import { isObject } from '@vueuse/core'
-import type { DefineComponent } from 'vue'
-import { defineComponent, h, inject, isVNode, markRaw, onMounted, ref } from 'vue'
+import { defineComponent, inject, markRaw, onMounted, ref } from 'vue'
+import { h } from 'vue/src/v3'
 import { InjectionState } from '../constants'
 import { proxyProps } from '../options'
-import type { StarportProps } from '../types'
+import type { v3VNode } from '../utils/vue3'
+import { isVNode } from '../utils/vue3'
 import { StarportProxy } from './StarportProxy'
 
 /**
@@ -33,7 +34,7 @@ export const Starport = defineComponent({
       if (slots.length !== 1)
         throw new Error(`[Vue Starport] <Starport> requires exactly one slot, but got ${slots.length}`)
 
-      const slot = slots[0]
+      const slot = slots[0] as v3VNode
       let component = slot.type as any
 
       if (!isObject(component) || isVNode(component)) {
@@ -52,4 +53,4 @@ export const Starport = defineComponent({
       })
     }
   },
-}) as DefineComponent<StarportProps>
+})

@@ -1,8 +1,9 @@
-import type { DefineComponent } from 'vue'
-import { computed, defineComponent, h, inject, mergeProps, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { PortalTarget } from 'portal-vue'
+import { computed, defineComponent, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { h } from 'vue/src/v3'
 import { InjectionState } from '../constants'
 import { proxyProps } from '../options'
-import type { StarportProxyProps } from '../types'
+import { mergeProps } from '../utils/vue3'
 
 /**
  * @internal
@@ -92,7 +93,7 @@ export const StarportProxy = defineComponent({
       )
 
       return h(
-        'div',
+        PortalTarget,
         mergeProps(attrs, {
           id,
           'ref': el,
@@ -106,4 +107,4 @@ export const StarportProxy = defineComponent({
       )
     }
   },
-}) as DefineComponent<StarportProxyProps>
+})
